@@ -1,0 +1,78 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         Int         @id @default(autoincrement())
+  full_name  String      @db.VarChar(100)
+  user_name  String      @unique @db.VarChar(20)
+  password   String      @db.VarChar(255)
+  status     Boolean     @db.TinyInt
+  role       String      @default("USER") @db.VarChar(20)
+  can_add    Boolean     @default(true) @db.TinyInt
+  can_delete Boolean     @default(false) @db.TinyInt
+  can_clear  Boolean     @default(false) @db.TinyInt
+  created_at DateTime?   @default(now()) @db.Timestamp(3)
+  updated_at DateTime?   @updatedAt @db.Timestamp(3)
+  container  Container[]
+  login_logs LoginLog[]
+
+  @@map("users")
+}
+
+model Container {
+  id               Int       @id @default(autoincrement())
+  cont_no          String    @unique @db.VarChar(12)
+  size             Int       @db.Int
+  location         String    @db.VarChar(5)
+  location_remarks String?    @db.VarChar(50)
+  user_id          Int
+  User             User      @relation(fields: [user_id], references: [id])
+  created_at       DateTime? @default(now()) @db.Timestamp(3)
+  updated_at       DateTime? @updatedAt @db.Timestamp(3)
+
+  @@map("container")
+}
+
+model ContainerArchive {
+  id               Int       @id @default(autoincrement())
+  cont_no          String    @db.VarChar(12)
+  size             Int       @db.Int
+  location         String    @db.VarChar(5)
+  location_remarks String?   @db.VarChar(50)
+  user_id          Int
+  created_at       DateTime? @db.Timestamp(3)
+  archived_at      DateTime? @default(now()) @db.Timestamp(3)
+
+  @@map("container_archive")
+}
+
+model ContainerMaster {
+  id      Int     @id @default(autoincrement())
+  cont_no String  @unique @db.VarChar(12)
+  size    Int?    @db.Int
+  source  String? @db.VarChar(15)
+
+  @@map("container_master")
+}
+
+model LoginLog {
+  id         Int      @id @default(autoincrement())
+  user_id    Int
+  User       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  login_time DateTime @default(now()) @db.Timestamp(3)
+
+  @@map("login_log")
+}
+

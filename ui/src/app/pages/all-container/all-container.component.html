@@ -1,0 +1,155 @@
+<div class="card p-3 shadow-1 border-round">
+    <p-table
+        #dt2
+        styleClass="p-datatable-gridlines p-datatable-sm"
+        [columns]="cols"
+        [value]="container"
+        [rows]="10"
+        [rowsPerPageOptions]="[10, 50, 100, 200]"
+        [paginator]="true"
+        [globalFilterFields]="['cont_no', 'location', 'User.full_name']"
+        responsiveLayout="stack"
+        [breakpoint]="'960px'">
+        <ng-template pTemplate="caption">
+            <div
+                class="flex flex-column md:flex-row md:justify-content-between md:align-items-center gap-2">
+                <div class="flex gap-2">
+                    <p-button
+                        icon="pi pi-external-link"
+                        label="Export CSV"
+                        styleClass="p-button-outlined p-button-sm"
+                        (onClick)="dt2.exportCSV()" />
+                    <p-button
+                        *ngIf="canClear"
+                        icon="pi pi-trash"
+                        label="Clear All Data"
+                        styleClass="p-button-danger p-button-sm"
+                        (onClick)="clearAllInventory()" />
+                </div>
+                <div class="p-input-icon-left w-full md:w-auto">
+                    <i class="pi pi-search"></i>
+                    <input
+                        pInputText
+                        type="text"
+                        class="p-inputtext-sm w-full md:w-15rem"
+                        (input)="
+                            dt2.filterGlobal(getEventValue($event), 'contains')
+                        "
+                        placeholder="Search Container / Location..." />
+                </div>
+            </div>
+        </ng-template>
+
+        <ng-template pTemplate="header">
+            <tr>
+                <th style="width: 4rem">Sr No</th>
+                <th pSortableColumn="cont_no">
+                    Cont No <p-sortIcon field="cont_no"></p-sortIcon>
+                </th>
+                <th pSortableColumn="size">
+                    Size <p-sortIcon field="size"></p-sortIcon>
+                </th>
+                <th pSortableColumn="location">
+                    Location <p-sortIcon field="location"></p-sortIcon>
+                </th>
+                <th>Location Remarks</th>
+                <th>User Name</th>
+                <th pSortableColumn="created_at">
+                    Created At <p-sortIcon field="created_at"></p-sortIcon>
+                </th>
+                <th style="width: 5rem; text-align: center">Action</th>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-rowdata let-i="rowIndex">
+            <tr [class.row-deleted]="rowdata.isDeleting">
+                <td>
+                    <span class="p-column-title font-bold md:hidden"
+                        >Sr No:</span
+                    >
+                    {{ _(rowdata, 'sr') }}
+                </td>
+                <td>
+                    <span class="p-column-title font-bold md:hidden"
+                        >Cont No:</span
+                    >
+                    <span class="font-bold text-primary">{{
+                        _(rowdata, 'cont_no')
+                    }}</span>
+                </td>
+                <td>
+                    <span class="p-column-title font-bold md:hidden"
+                        >Size:</span
+                    >
+                    {{ _(rowdata, 'size') }} FT
+                </td>
+                <td>
+                    <span class="p-column-title font-bold md:hidden"
+                        >Location:</span
+                    >
+                    <span class="p-tag p-tag-info">{{
+                        _(rowdata, 'location')
+                    }}</span>
+                </td>
+                <td>
+                    <span class="p-column-title font-bold md:hidden"
+                        >Remarks:</span
+                    >
+                    {{ _(rowdata, 'location_remarks') || '-' }}
+                </td>
+                <td>
+                    <span class="p-column-title font-bold md:hidden"
+                        >User:</span
+                    >
+                    {{ _(rowdata, 'User.full_name') }}
+                </td>
+                <td>
+                    <span class="p-column-title font-bold md:hidden"
+                        >Date:</span
+                    >
+                    {{
+                        _(rowdata, 'created_at') | date: 'dd/MM/yyyy hh:mm:ss a'
+                    }}
+                </td>
+                <td style="text-align: center">
+                    <span class="p-column-title font-bold md:hidden"
+                        >Action:</span
+                    >
+                    <p-button
+                        *ngIf="canDelete"
+                        icon="pi pi-trash"
+                        severity="danger"
+                        [rounded]="true"
+                        [outlined]="true"
+                        size="small"
+                        (onClick)="deleteRow(_(rowdata, 'id'))"
+                        pTooltip="Delete Entry"
+                        tooltipPosition="left">
+                    </p-button>
+                    <span *ngIf="!canDelete" class="text-sm text-gray-500">-</span>
+                </td>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="8" class="text-center p-4">
+                    No containers found.
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
+
+<!-- Data Wipe Overlay -->
+<div [style.display]="isClearing ? 'flex' : 'none'" class="wipe-overlay flex-column justify-content-center align-items-center">
+    <div class="wipe-card flex flex-column align-items-center gap-3">
+        <div class="wipe-spinner-container">
+            <div class="wipe-spinner"></div>
+            <i class="pi pi-database wipe-icon"></i>
+        </div>
+        <span class="wipe-title">DATABASE RESET IN PROGRESS</span>
+        <span class="wipe-subtitle">{{ currentDeletingContNo }}</span>
+        <span class="wipe-badge">AUTO-BACKUP ON</span>
+    </div>
+</div>

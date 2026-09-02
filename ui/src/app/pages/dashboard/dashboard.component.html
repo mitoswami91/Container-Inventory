@@ -1,0 +1,90 @@
+<div class="p-5">
+    <div class="mb-5">
+        <h1 class="text-3xl font-bold text-900 m-0 mb-1">Container Inventory Dashboard</h1>
+        <p class="text-600 m-0">Welcome back. Select an action below to manage container tracking and inventory checks.</p>
+    </div>
+
+    <div class="grid">
+        <!-- Add Container -->
+        <div *ngIf="canAdd" class="col-12 md:col-6 lg:col-4 p-3">
+            <div class="surface-card shadow-2 p-4 border-round flex flex-column justify-content-between h-full border-top-3 border-blue-500">
+                <div>
+                    <div class="flex align-items-center mb-3">
+                        <i class="pi pi-plus-circle text-blue-500 text-2xl mr-2"></i>
+                        <span class="text-xl font-semibold text-900">Add Container</span>
+                    </div>
+                    <p class="text-600 line-height-3 mb-4">Register new container entries verified from the field. Enter number, size, and remarks.</p>
+                </div>
+                <p-button label="Open Form" icon="pi pi-arrow-right" iconPos="right" (onClick)="AddContainer()" styleClass="w-full p-button-sm"></p-button>
+            </div>
+        </div>
+
+        <!-- View My Containers -->
+        <div *ngIf="isAdmin" class="col-12 md:col-6 lg:col-4 p-3">
+            <div class="surface-card shadow-2 p-4 border-round flex flex-column justify-content-between h-full border-top-3 border-teal-500">
+                <div>
+                    <div class="flex align-items-center mb-3">
+                        <i class="pi pi-list text-teal-500 text-2xl mr-2"></i>
+                        <span class="text-xl font-semibold text-900">My Container Entries</span>
+                    </div>
+                    <p class="text-600 line-height-3 mb-4">View and track container entries created by your account. Review details, remarks, and timestamps.</p>
+                </div>
+                <p-button label="View List" icon="pi pi-arrow-right" iconPos="right" (onClick)="viewContainer()" styleClass="w-full p-button-teal p-button-sm"></p-button>
+            </div>
+        </div>
+
+        <!-- View All Containers -->
+        <div *ngIf="isAdmin" class="col-12 md:col-6 lg:col-4 p-3">
+            <div class="surface-card shadow-2 p-4 border-round flex flex-column justify-content-between h-full border-top-3 border-indigo-500">
+                <div>
+                    <div class="flex align-items-center mb-3">
+                        <i class="pi pi-database text-indigo-500 text-2xl mr-2"></i>
+                        <span class="text-xl font-semibold text-900">All Containers</span>
+                    </div>
+                    <p class="text-600 line-height-3 mb-4">View container entries recorded by all field staff. Export data to CSV or perform deletions.</p>
+                </div>
+                <p-button label="Explore Database" icon="pi pi-arrow-right" iconPos="right" (onClick)="viewAllContainers()" styleClass="w-full p-button-outlined p-button-sm"></p-button>
+            </div>
+        </div>
+
+        <!-- User Management (Admin Only) -->
+        <div *ngIf="isAdmin" class="col-12 md:col-6 lg:col-4 p-3">
+            <div class="surface-card shadow-2 p-4 border-round flex flex-column justify-content-between h-full border-top-3 border-orange-500">
+                <div>
+                    <div class="flex align-items-center mb-3">
+                        <i class="pi pi-users text-orange-500 text-2xl mr-2"></i>
+                        <span class="text-xl font-semibold text-900">User Administration</span>
+                    </div>
+                    <p class="text-600 line-height-3 mb-4">Manage user accounts, toggle active status, change passwords, and configure role and permission flags.</p>
+                </div>
+                <p-button label="Manage Users" icon="pi pi-cog" (onClick)="userManagement()" styleClass="w-full p-button-warning p-button-sm"></p-button>
+            </div>
+        </div>
+
+        <!-- Reset Inventory (Clear Data - Restricted) -->
+        <div *ngIf="canClear" class="col-12 md:col-6 lg:col-4 p-3">
+            <div class="surface-card shadow-2 p-4 border-round flex flex-column justify-content-between h-full border-top-3 border-red-500">
+                <div>
+                    <div class="flex align-items-center mb-3">
+                        <i class="pi pi-trash text-red-500 text-2xl mr-2"></i>
+                        <span class="text-xl font-semibold text-900">Clear Inventory Data</span>
+                    </div>
+                    <p class="text-600 line-height-3 mb-4">Purge all container records from the SQL database after temporary calculations are completed.</p>
+                </div>
+                <p-button label="Purge Database" icon="pi pi-exclamation-triangle" (onClick)="clearData()" styleClass="w-full p-button-danger p-button-sm"></p-button>
+            </div>
+        </div>
+</div>
+
+<!-- Data Wipe Overlay -->
+<div [style.display]="isClearing ? 'flex' : 'none'" class="wipe-overlay flex-column justify-content-center align-items-center">
+    <div class="wipe-card flex flex-column align-items-center gap-3">
+        <div class="wipe-spinner-container">
+            <div class="wipe-spinner"></div>
+            <i class="pi pi-database wipe-icon"></i>
+        </div>
+        <span class="wipe-title">DATABASE RESET IN PROGRESS</span>
+        <span class="wipe-subtitle">{{ currentDeletingContNo }}</span>
+        <span class="wipe-badge">AUTO-BACKUP ON</span>
+    </div>
+</div>

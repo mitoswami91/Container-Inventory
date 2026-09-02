@@ -1,0 +1,143 @@
+<div class="card p-5 shadow-2 border-round surface-card">
+    <div class="flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="text-3xl font-bold text-900 m-0 mb-1">User Administration Panel</h2>
+            <p class="text-600 m-0">Create new user accounts and customize individual database permissions.</p>
+        </div>
+        <p-button label="Add New User" icon="pi pi-plus" (onClick)="showAddDialog()" styleClass="p-button-primary p-button-sm"></p-button>
+    </div>
+
+    <p-table #dtUsers [columns]="cols" [value]="users" styleClass="p-datatable-gridlines p-datatable-sm" responsiveLayout="scroll">
+        <ng-template pTemplate="caption">
+            <div class="flex justify-content-between align-items-center gap-2">
+                <span class="text-xl font-bold text-900">User accounts list</span>
+                <p-button
+                    icon="pi pi-external-link"
+                    label="Export Users CSV"
+                    styleClass="p-button-outlined p-button-sm"
+                    (onClick)="dtUsers.exportCSV()" />
+            </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th style="width: 4rem">Sr No</th>
+                <th pSortableColumn="full_name">Full Name <p-sortIcon field="full_name"></p-sortIcon></th>
+                <th pSortableColumn="user_name">Username <p-sortIcon field="user_name"></p-sortIcon></th>
+                <th pSortableColumn="role">Role <p-sortIcon field="role"></p-sortIcon></th>
+                <th class="text-center" style="width: 7rem">Add Entry</th>
+                <th class="text-center" style="width: 7rem">Delete Entry</th>
+                <th class="text-center" style="width: 7rem">Reset DB</th>
+                <th class="text-center" style="width: 6rem" pSortableColumn="_count.login_logs">Logins <p-sortIcon field="_count.login_logs"></p-sortIcon></th>
+                <th class="text-center" style="width: 7rem" pSortableColumn="status">Status <p-sortIcon field="status"></p-sortIcon></th>
+                <th class="text-center" style="width: 10rem">Actions</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-user let-i="rowIndex">
+            <tr>
+                <td>{{ i + 1 }}</td>
+                <td class="font-semibold text-900">{{ user.full_name }}</td>
+                <td><span class="text-primary font-bold">&#64;{{ user.user_name }}</span></td>
+                <td>
+                    <span [class]="user.role === 'ADMIN' ? 'p-tag p-tag-warning' : 'p-tag p-tag-info'">
+                        {{ user.role === 'ADMIN' ? 'Admin' : 'Field User' }}
+                    </span>
+                </td>
+                <td class="text-center">
+                    <i [class]="user.can_add || user.role === 'ADMIN' ? 'pi pi-check-circle text-green-500 font-bold text-lg' : 'pi pi-times-circle text-red-500 font-bold text-lg'"></i>
+                </td>
+                <td class="text-center">
+                    <i [class]="user.can_delete || user.role === 'ADMIN' ? 'pi pi-check-circle text-green-500 font-bold text-lg' : 'pi pi-times-circle text-red-500 font-bold text-lg'"></i>
+                </td>
+                <td class="text-center">
+                    <i [class]="user.can_clear || user.role === 'ADMIN' ? 'pi pi-check-circle text-green-500 font-bold text-lg' : 'pi pi-times-circle text-red-500 font-bold text-lg'"></i>
+                </td>
+                <td class="text-center font-bold text-700">
+                    {{ user._count?.login_logs || 0 }}
+                </td>
+                <td class="text-center">
+                    <span [class]="user.status ? 'p-tag p-tag-success' : 'p-tag p-tag-danger'">
+                        {{ user.status ? 'Active' : 'Inactive' }}
+                    </span>
+                </td>
+                <td class="text-center">
+                    <div class="flex justify-content-center gap-2">
+                        <p-button icon="pi pi-user-edit" severity="secondary" [rounded]="true" size="small" (onClick)="showEditDialog(user)" pTooltip="Edit User" tooltipPosition="bottom"></p-button>
+                        <p-button [icon]="user.status ? 'pi pi-ban' : 'pi pi-check'" [severity]="user.status ? 'danger' : 'success'" [rounded]="true" size="small" (onClick)="toggleUserStatus(user)" [pTooltip]="user.status ? 'Deactivate' : 'Activate'" tooltipPosition="bottom"></p-button>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="10" class="text-center p-4">No users found.</td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
+
+<!-- User Add/Edit Dialog -->
+<p-dialog [header]="dialogTitle" [(visible)]="displayDialog" [modal]="true" [style]="{ width: '450px' }" styleClass="p-fluid">
+    <ng-template pTemplate="content">
+        <form [formGroup]="userForm" class="flex flex-column gap-3 py-2">
+            <!-- Full Name -->
+            <div class="field">
+                <label for="full_name" class="font-semibold block mb-1">Full Name</label>
+                <input id="full_name" type="text" pInputText formControlName="full_name" placeholder="e.g. John Doe" />
+                <small *ngIf="userForm.get('full_name')?.touched && userForm.get('full_name')?.invalid" class="p-error block mt-1">Full name is required (min 3 characters).</small>
+            </div>
+
+            <!-- Username -->
+            <div class="field">
+                <label for="user_name" class="font-semibold block mb-1">Username</label>
+                <input id="user_name" type="text" pInputText formControlName="user_name" placeholder="e.g. johndoe" />
+                <small *ngIf="userForm.get('user_name')?.touched && userForm.get('user_name')?.invalid" class="p-error block mt-1">Username is required (min 3 characters).</small>
+            </div>
+
+            <!-- Password -->
+            <div class="field">
+                <label for="password" class="font-semibold block mb-1">Password</label>
+                <input id="password" type="password" pInputText formControlName="password" [placeholder]="isEditMode ? 'Leave blank to keep unchanged' : 'Minimum 8 characters'" />
+                <small *ngIf="userForm.get('password')?.touched && userForm.get('password')?.invalid" class="p-error block mt-1">Password must be at least 8 characters.</small>
+            </div>
+
+            <!-- Role Selection -->
+            <div class="field">
+                <label for="role" class="font-semibold block mb-1">Account Role</label>
+                <p-dropdown id="role" [options]="rolesList" formControlName="role" optionLabel="name" optionValue="value" placeholder="Select Role"></p-dropdown>
+            </div>
+
+            <!-- Permission Checkboxes -->
+            <div class="field" *ngIf="userForm.get('role')?.value !== 'ADMIN'">
+                <label class="font-semibold block mb-2">Permissions</label>
+                <div class="flex flex-column gap-2 p-3 surface-100 border-round">
+                    <div class="flex align-items-center">
+                        <p-checkbox id="can_add" formControlName="can_add" [binary]="true"></p-checkbox>
+                        <label for="can_add" class="ml-2 cursor-pointer font-medium text-800">Add Container Entries</label>
+                    </div>
+                    <div class="flex align-items-center">
+                        <p-checkbox id="can_delete" formControlName="can_delete" [binary]="true"></p-checkbox>
+                        <label for="can_delete" class="ml-2 cursor-pointer font-medium text-800">Delete Row Entries (Remove Data)</label>
+                    </div>
+                    <div class="flex align-items-center">
+                        <p-checkbox id="can_clear" formControlName="can_clear" [binary]="true"></p-checkbox>
+                        <label for="can_clear" class="ml-2 cursor-pointer font-medium text-800">Purge/Reset Database (Clear Data)</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="field" *ngIf="userForm.get('role')?.value === 'ADMIN'">
+                <div class="p-3 surface-100 border-round text-orange-600 font-semibold flex align-items-center gap-2">
+                    <i class="pi pi-info-circle"></i>
+                    <span>Administrators hold all permissions by default.</span>
+                </div>
+            </div>
+        </form>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-end gap-2 mt-4">
+            <p-button label="Cancel" icon="pi pi-times" severity="secondary" (onClick)="displayDialog = false" styleClass="p-button-text"></p-button>
+            <p-button label="Save User" icon="pi pi-check" (onClick)="saveUser()" [disabled]="userForm.invalid"></p-button>
+        </div>
+    </ng-template>
+</p-dialog>

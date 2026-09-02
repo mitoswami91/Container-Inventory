@@ -1,0 +1,10 @@
+/* Smooth Row-by-Row Slide and Fade Out */
+tr {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+tr.row-deleted {
+    opacity: 0;
+    transform: translateX(-100px);
+    background-color: rgba(239, 68, 68, 0.15) !important;
+}

@@ -1,0 +1,30 @@
+<div
+    class="flex flex-column justify-content-between align-items-stretch align-content-between h-screen">
+    <div>
+        <div class="flex justify-content-between align-items-center p-2 surface-300 shadow-1">
+            <div class="flex align-items-center gap-3">
+                <a role="button" class="cursor-pointer flex align-items-center text-gray-800 hover:text-primary transition-colors duration-200" (click)="toggleSidebar()">
+                    <img src="assets/seabird-logo.jpg" alt="Seabird Marine" style="height: 38px; border-radius: 4px;" class="mr-2" />
+                    <i class="pi pi-home" style="font-size: 1.4rem"></i>
+                </a>
+            </div>
+            <span class="font-bold text-sm md:text-base text-gray-700">Location: {{ location }}</span>
+            <div class="flex align-items-center gap-3">
+                <a *ngIf="isAdmin" role="button" (click)="goToUserManagement()" class="cursor-pointer text-gray-800 hover:text-primary transition-colors duration-200"
+                    ><i class="pi pi-users" style="font-size: 1.5rem"></i
+                ></a>
+                <a role="button" (click)="logout()" class="cursor-pointer text-gray-800 hover:text-primary transition-colors duration-200"
+                    ><i class="pi pi-sign-out" style="font-size: 1.5rem"></i
+                ></a>
+            </div>
+        </div>
+    </div>
+    <div class="flex-grow-1 h-screen overflow-auto p-3">
+        <router-outlet></router-outlet>
+    </div>
+    <div
+        class="flex justify-content-between p-2 surface-300 justify-content-between text-sm font-medium text-gray-600 border-top-1 border-300">
+        <p>Seabird CFS</p>
+        <p>Managed by Mitesh</p>
+    </div>
+</div>

@@ -1,0 +1,73 @@
+<div class="hl-container p-6">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h2 class="hl-title text-xl font-bold">
+                Admin Control: User Management
+            </h2>
+            <p class="text-sm text-muted">
+                Yahan se aap inactive users ko track aur deactivate kar sakte
+                hain.
+            </p>
+        </div>
+        <button
+            class="hl-btn hl-btn-primary hl-btn-sm"
+            (click)="loadAllUsers()">
+            Refresh
+        </button>
+    </div>
+
+    <div *ngIf="isLoading" class="text-center py-6">
+        <div class="hl-spinner"></div>
+        <p class="text-sm text-muted mt-2">Database se data aa raha hai...</p>
+    </div>
+
+    <div *ngIf="!isLoading" class="hl-card overflow-x-auto shadow rounded-lg">
+        <table class="hl-table w-full text-left">
+            <thead class="bg-light border-b">
+                <tr>
+                    <th class="p-3 font-semibold">Full Name</th>
+                    <th class="p-3 font-semibold">Username</th>
+                    <th class="p-3 font-semibold">Status</th>
+                    <th class="p-3 font-semibold text-center">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngIf="usersList.length === 0">
+                    <td colspan="4" class="text-center p-6 text-muted">
+                        Koi user nahi mila.
+                    </td>
+                </tr>
+
+                <tr
+                    *ngFor="let user of usersList"
+                    class="border-b hover:bg-hover transition">
+                    <td class="p-3 font-medium">{{ user.full_name }}</td>
+                    <td class="p-3 text-muted">&#64;{{ user.user_name }}</td>
+                    <td class="p-3">
+                        <span
+                            [class]="
+                                user.status
+                                    ? 'hl-badge hl-badge-success'
+                                    : 'hl-badge hl-badge-danger'
+                            ">
+                            {{ user.status ? 'Active' : 'Inactive' }}
+                        </span>
+                    </td>
+                    <td class="p-3 text-center">
+                        <button
+                            *ngIf="user.status"
+                            class="hl-btn hl-btn-danger hl-btn-sm"
+                            (click)="onDeactivateUser(user.id, user.full_name)">
+                            Deactivate
+                        </button>
+                        <span
+                            *ngIf="!user.status"
+                            class="text-sm text-danger font-semibold"
+                            >Deactivated</span
+                        >
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

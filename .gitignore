@@ -1,0 +1,69 @@
+# ===================================================
+# Sensitive Credentials & Environment Configurations
+# ===================================================
+.env
+.env*
+*.env
+*.env.local
+*.env.production
+
+# ===================================================
+# Data Files & Customer Container Lists (Confidential)
+# ===================================================
+*.csv
+*.tsv
+*.xlsx
+*.xls
+*.sql
+*.dump
+
+# ===================================================
+# Dependencies & Package Caches
+# ===================================================
+node_modules/
+*/node_modules/
+.pnp
+.pnp.js
+
+# ===================================================
+# Build & Distribution Artifacts
+# ===================================================
+dist/
+*/dist/
+build/
+*/build/
+out/
+.angular/
+*/.angular/
+
+# ===================================================
+# Large Binary Archives
+# ===================================================
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# ===================================================
+# Logs & Diagnostic Reports
+# ===================================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ===================================================
+# OS & Editor Metadata
+# ===================================================
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

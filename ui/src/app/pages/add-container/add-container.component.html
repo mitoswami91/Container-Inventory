@@ -1,0 +1,138 @@
+<div class="flex justify-content-center align-items-center min-h-full p-2 md:p-5 surface-50">
+    <div class="w-full max-w-lg flex flex-column gap-3">
+        
+        <!-- Sync Queue Alert Banner -->
+        <div *ngIf="localQueueLength > 0" class="p-3 bg-orange-50 border-round-xl border-1 border-orange-200 flex align-items-center justify-content-between gap-3 shadow-1">
+            <div class="flex align-items-center gap-2">
+                <i class="pi pi-cloud-upload text-orange-600 text-2xl"></i>
+                <div>
+                    <span class="text-sm font-bold text-orange-900 block">{{ localQueueLength }} offline entries waiting</span>
+                    <span class="text-xs text-orange-700">Ready to upload to database</span>
+                </div>
+            </div>
+            <p-button 
+                label="Sync Now" 
+                icon="pi pi-sync" 
+                styleClass="p-button-warning p-button-sm font-bold shadow-1" 
+                [loading]="isSyncing" 
+                (onClick)="syncQueue()"></p-button>
+        </div>
+
+        <form 
+            class="surface-card p-4 md:p-5 shadow-3 border-round-xl w-full border-top-3 border-blue-500 flex flex-column gap-4" 
+            [formGroup]="add_container_form"
+            (ngSubmit)="save()">
+            
+            <div class="text-center mb-1">
+                <i class="pi pi-plus-circle text-blue-500 text-4xl mb-2"></i>
+                <h2 class="text-2xl font-bold text-900 m-0 mb-1">Add Container Entry</h2>
+                <p class="text-500 m-0 text-sm">Register a field container verified from the site</p>
+            </div>
+
+            <!-- Offline Mode Toggle Switch -->
+            <div class="flex align-items-center justify-content-between p-3 surface-100 border-round-lg border-1 border-300">
+                <div class="flex align-items-center gap-3">
+                    <i class="pi pi-wifi-off text-2xl text-orange-500"></i>
+                    <div>
+                        <span class="font-bold text-900 text-sm block">Offline Queue Mode</span>
+                        <span class="text-xs text-600">Save in browser when internet is slow</span>
+                    </div>
+                </div>
+                <p-inputSwitch 
+                    [(ngModel)]="isOfflineMode" 
+                    (onChange)="toggleOfflineMode($event.checked)" 
+                    [ngModelOptions]="{standalone: true}"></p-inputSwitch>
+            </div>
+
+            <hr class="border-300 m-0" />
+
+            <!-- Container Number -->
+            <div class="field flex flex-column gap-1 w-full">
+                <div class="flex justify-content-between align-items-center">
+                    <label for="cont_no" class="text-900 font-semibold text-sm">Container Number</label>
+                    <span class="text-500 text-xs font-medium">Format: ABCD1234567</span>
+                </div>
+                
+                <div class="p-inputgroup w-full">
+                    <span class="p-inputgroup-addon">
+                        <i class="pi pi-box"></i>
+                    </span>
+                    <p-autoComplete 
+                        id="cont_no"
+                        [suggestions]="suggestions" 
+                        (completeMethod)="searchContainer($event)"
+                        (onSelect)="onSelectSuggestion($event)"
+                        (onBlur)="onContainerBlur()"
+                        formControlName="cont_no" 
+                        placeholder="Enter Container Number"
+                        [style]="{'width': '100%'}"
+                        inputStyleClass="w-full p-inputtext-lg font-bold text-primary"
+                        [inputStyle]="{'text-transform':'uppercase', 'font-size': '1.25rem', 'font-weight': '600', 'width': '100%', 'padding': '12px'}" />
+                </div>
+                
+                <!-- Dynamic validation alerts -->
+                <div *ngIf="add_container_form.controls['cont_no'].touched && add_container_form.controls['cont_no'].invalid" class="mt-1">
+                    <small *ngIf="add_container_form.controls['cont_no'].errors?.['required']" class="p-error block text-xs">
+                        <i class="pi pi-exclamation-circle mr-1"></i>Container number is required.
+                    </small>
+                    <small *ngIf="add_container_form.controls['cont_no'].errors?.['inValidContNo']" class="p-error block text-xs">
+                        <i class="pi pi-times-circle mr-1"></i>Invalid container number (ISO 6346 checksum failed).
+                    </small>
+                </div>
+                <div *ngIf="add_container_form.controls['cont_no'].touched && add_container_form.controls['cont_no'].valid" class="mt-1">
+                    <small class="text-green-600 block text-xs font-semibold">
+                        <i class="pi pi-check-circle mr-1"></i>Container checksum verified.
+                    </small>
+                </div>
+            </div>
+
+            <!-- Size Dropdown -->
+            <div class="field flex flex-column gap-1 w-full">
+                <label for="size" class="text-900 font-semibold text-sm">Size (in Feet)</label>
+                <p-dropdown 
+                    id="size"
+                    formControlName="size" 
+                    [options]='size' 
+                    optionLabel="size" 
+                    placeholder="Select Container Size"
+                    [style]="{'width': '100%'}"
+                    styleClass="p-dropdown-lg w-full" />
+                
+                <div *ngIf="add_container_form.controls['size'].touched && add_container_form.controls['size'].invalid" class="mt-1">
+                    <small class="p-error block text-xs">
+                        <i class="pi pi-exclamation-circle mr-1"></i>Container size is required.
+                    </small>
+                </div>
+            </div>
+
+            <!-- Location Remarks -->
+            <div class="field flex flex-column gap-1 w-full">
+                <label for="location_remarks" class="text-900 font-semibold text-sm">Location Remarks (Optional)</label>
+                <div class="p-inputgroup w-full">
+                    <span class="p-inputgroup-addon">
+                        <i class="pi pi-map-marker"></i>
+                    </span>
+                    <input
+                        pInputText
+                        type="text"
+                        formControlName="location_remarks"
+                        id="location_remarks" 
+                        placeholder="e.g. Stack A, Yard 3"
+                        class="p-inputtext-lg w-full"
+                        [style]="{'width': '100%', 'padding': '12px'}" />
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="mt-3 w-full">
+                <p-button 
+                    type="submit" 
+                    label="Save Container" 
+                    icon="pi pi-check" 
+                    styleClass="w-full p-button-lg"
+                    [loading]="isSaving"
+                    [disabled]="add_container_form.invalid || isSaving || isSyncing"></p-button>
+            </div>
+        </form>
+    </div>
+</div>

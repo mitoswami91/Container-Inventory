@@ -1,0 +1,35 @@
+/* High-Contrast styles for outdoor sunlight conditions */
+::ng-deep {
+    /* Selected option label of the dropdown */
+    .p-dropdown {
+        border-color: #94a3b8 !important; /* Thicker border */
+        
+        .p-dropdown-label {
+            font-size: 1.25rem !important;
+            font-weight: 800 !important; /* Heavy bold */
+            color: #0f172a !important; /* Deep Slate (almost black) for highest contrast */
+            padding: 12px !important;
+        }
+    }
+    
+    /* Items list inside the popup overlay panel */
+    .p-dropdown-panel {
+        .p-dropdown-items {
+            .p-dropdown-item {
+                font-size: 1.25rem !important;
+                font-weight: 800 !important;
+                color: #0f172a !important;
+                padding: 14px 16px !important;
+            }
+        }
+    }
+
+    /* Make field label text larger and extra bold */
+    label {
+        font-size: 0.95rem !important;
+        font-weight: 800 !important;
+        color: #1e293b !important;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+}
