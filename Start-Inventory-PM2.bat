@@ -2,7 +2,7 @@
 echo ==============================================
 echo STARTING INVENTORY API SERVICES (PM2)
 echo ==============================================
-cd "C:\Users\Administrator\.gemini\antigravity\scratch\Container Inventory\api"
+cd "Container Inventory\api"
 pm2 start ecosystem.config.js
 pm2 save
 echo.
